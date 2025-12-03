@@ -1,0 +1,1010 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bingo Room - {{ room.code }}</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+
+    <style>
+        td {
+            cursor: pointer;
+            transition: background 0.2s;
+            user-select: none;
+        }
+
+        td.marked.player1 { background-color: #6d28d9 !important; color: white !important; }
+        td.marked.player2 { background-color: #a855f7 !important; color: white !important; }
+        td.winner { background-color: gold !important; color: black !important; }
+
+        #lineCanvas {
+            position: absolute;
+            inset: 0;
+            pointer-events: none;
+            z-index: 10;
+        }
+
+        .toast {
+            position: fixed;
+            right: 1rem;
+            bottom: 1rem;
+            z-index: 60;
+            background: rgba(31, 41, 55, 0.9);
+            color: #e9d5ff;
+            padding: .5rem 1rem;
+            border-radius: .5rem;
+            box-shadow: 0 6px 18px rgba(0,0,0,0.4);
+            display: none;
+        }
+
+        .confetti {
+            position: fixed;
+            top: -20px;
+            width: 10px;
+            height: 14px;
+            z-index: 160;
+            opacity: 0.95;
+            pointer-events: none;
+            border-radius: 2px;
+        }
+
+        .result-modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 170;
+        }
+
+        .result-modal {
+            width: 420px;
+            max-width: calc(100% - 40px);
+            background: linear-gradient(180deg, rgba(17,24,39,0.95), rgba(10,10,15,0.85));
+            color: #f5f3ff;
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(124,58,237,0.6);
+            box-shadow: 0 10px 40px rgba(0,0,0,0.6);
+            text-align: center;
+        }
+
+        .loser-shake { animation: shake 0.8s ease-in-out; }
+
+        @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-8px); }
+            40% { transform: translateX(8px); }
+            60% { transform: translateX(-6px); }
+            80% { transform: translateX(6px); }
+            100% { transform: translateX(0); }
+        }
+
+        .winner-glow {
+            box-shadow: 0 8px 40px rgba(168,85,247,0.45);
+            transform: scale(1.02);
+        }
+
+        .bingo-active {
+        color: #22c55e !important;
+        text-shadow: 0 0 12px #22c55e;
+        transform: scale(1.2);
+        transition: 0.3s;
+    }
+
+
+        /* Modal background */
+.chat-modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    justify-content: center;
+    align-items: center;
+    z-index: 999;
+}
+
+/* Modal content */
+.chat-modal-content {
+    width: 400px;
+    height: 500px;
+    background: #f0f0f0;
+    border-radius: 16px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    animation: popup 0.2s ease;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+/* Header */
+.chat-modal-header {
+    background: purple;
+    color: #fff;
+    padding: 12px 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 600;
+    font-size: 16px;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 22px;
+    cursor: pointer;
+    color: white;
+}
+
+/* Messages container */
+.chat-messages {
+    flex: 1;
+    padding: 12px;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0,0,0,0.2) transparent;
+}
+
+.chat-messages::-webkit-scrollbar {
+    width: 6px;
+}
+
+.chat-messages::-webkit-scrollbar-thumb {
+    background-color: purple;
+    border-radius: 3px;
+}
+
+/* Message bubbles */
+.chat-bubble {
+    max-width: 75%;
+    padding: 10px 14px;
+    font-size: 14px;
+    line-height: 1.4;
+    word-break: break-word;
+    position: relative;
+    display: inline-block;
+    animation: fadeIn 0.2s ease;
+    box-shadow: 0 1px 1px rgba(0,0,0,0.1);
+}
+
+/* Sender messages (right) */
+.chat-bubble.me {
+    background: #dcf8c6;
+    color: #111;
+    align-self: flex-end;
+    border-radius: 18px 18px 4px 18px; /* Rounded bubble with "tail" effect */
+}
+
+/* Receiver messages (left) */
+.chat-bubble.them {
+    background: #fff;
+    color: #111;
+    align-self: flex-start;
+    border-radius: 18px 18px 18px 4px; /* Rounded bubble with "tail" effect */
+}
+
+/* Timestamps */
+.chat-bubble .timestamp {
+    font-size: 10px;
+    color: #999;
+    position: absolute;
+    bottom: 4px;
+    right: 10px;
+}
+
+/* Emoji picker */
+.emoji-picker {
+    padding: 8px;
+    background: #fff;
+    font-size: 22px;
+    display: flex;
+    justify-content: space-around;
+    border-top: 1px solid #ddd;
+    cursor: pointer;
+}
+
+.emoji-picker span {
+    cursor: pointer;
+}
+
+/* Input area */
+.chat-input-area {
+    display: flex;
+    align-items: center;
+    padding: 6px 10px;
+    background: #f0f0f0;
+    border-top: 1px solid #ddd;
+}
+
+.chat-input-area input {
+    flex: 1;
+    padding: 10px 14px;
+    border: none;
+    border-radius: 20px;
+    outline: none;
+    background: #fff;
+    font-size: 14px;
+}
+
+.send-btn {
+    background: purple;
+    border: none;
+    color: #fff;
+    padding: 8px 12px;
+    margin-left: 6px;
+    cursor: pointer;
+    border-radius: 50%;
+    font-size: 18px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+/* Animations */
+@keyframes popup {
+    from { transform: scale(0.9); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(5px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+
+/* Animate last message from right */
+.last-message-animate {
+    transform: translateX(100%);
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.5s ease;
+}
+
+.last-message-animate.show {
+    transform: translateX(0);
+    opacity: 1;
+}
+
+
+    </style>
+</head>
+
+<body class="bg-black text-purple-300 font-sans min-h-screen flex flex-col items-center py-10">
+
+<div class="fixed inset-0 -z-10 bg-gradient-to-b from-black via-[#180028] to-black"></div>
+
+<h1 class="text-4xl font-extrabold text-purple-400 mb-3">Bingo Room: {{ room.code }}</h1>
+<h3 class="text-xl text-gray-300 mb-6">You are: {{ player }}</h3>
+
+<!-- WAITING banner (id = waiting) -->
+<div id="waiting" class="text-blue-400 text-lg mb-4">Waiting for another player to join...</div>
+
+<!-- TURN & TIMER -->
+<div id="turn" class="hidden mb-2 text-lg text-purple-400">
+    Current Turn: <span id="currentTurn" class="font-bold"></span>
+</div>
+
+<div id="timer" class="hidden mb-4 text-red-400 text-lg">
+    Time Left: <span id="timeLeft">10</span>s
+</div>
+
+
+
+<!-- BOARD WRAPPER: uses id="boardWrap" as the game area -->
+<div id="boardWrap" class="relative inline-block mt-4 shadow-[0_0_20px_#7c3aed] rounded-xl p-4 bg-gray-900/40 backdrop-blur">
+    <table id="bingoTable" class="border-collapse">
+        {% for row in grid %}
+        <tr>
+            {% for num in row %}
+            <td data-number="{{ num }}"
+                class="w-16 h-16 border border-purple-700 text-center text-xl font-bold text-purple-200 hover:bg-purple-800">
+                {{ num }}
+            </td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+
+    <canvas id="lineCanvas"></canvas>
+</div>
+<div id="bingoDisplay" class="flex gap-3 mt-2 text-3xl font-extrabold tracking-widest text-purple-400">
+    <span id="b">B</span>
+    <span id="i">I</span>
+    <span id="n">N</span>
+    <span id="g">G</span>
+    <span id="o">O</span>
+</div>
+<button id="bingoButton" class="hidden mt-6 px-8 py-3 bg-purple-600 rounded-xl text-white">
+    Call Bingo
+</button>
+
+
+
+
+<!-- CHAT OPEN BUTTON -->
+<button id="openChatBtn"
+        class="fixed bottom-4 right-4 bg-purple-400 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-all duration-200 z-50">
+    💬
+</button>
+
+<div id="chatNotification" class="fixed bottom-4 right-4 bg-purple-500 text-white px-4 py-2 rounded shadow-lg hidden">
+</div>
+
+
+<!-- CHAT MODAL -->
+<div id="chatModal" class="chat-modal">
+    <div class="chat-modal-content">
+
+        <!-- HEADER -->
+        <div class="chat-modal-header">
+            <span>Game Chat</span>
+            <button id="closeChatBtn" class="close-btn">✖</button>
+        </div>
+
+        <!-- MESSAGES -->
+        <div id="chatMessages" class="chat-messages"></div>
+
+        <!-- EMOJI PICKER -->
+        <div id="emojiPicker" class="emoji-picker">
+            <span>😊</span><span>😂</span><span>😢</span><span>😎</span><span>❤️</span>
+        </div>
+
+        <!-- INPUT AREA -->
+        <div class="chat-input-area">
+            <input type="text" id="chatInput" placeholder="Type a message...">
+            <button id="sendChatBtn" class="send-btn">➤</button>
+        </div>
+
+    </div>
+</div>
+
+
+
+
+
+<button id="playAgainButton" class="hidden mt-4 px-6 py-2 bg-purple-500 rounded-lg text-white">
+    Play Again
+</button>
+
+<!-- popups & result modal -->
+<div id="popupRestart" class="hidden fixed inset-0 bg-black/70 backdrop-blur flex items-center justify-center z-50">
+    <div class="bg-gray-900 text-purple-200 p-6 rounded-xl shadow-xl border border-purple-700 w-80 text-center">
+        <h2 class="text-2xl font-bold mb-4 text-purple-300">Send Rematch Request?</h2>
+        <p class="mb-6 text-gray-300">This will ask your opponent if they want to play again.</p>
+
+        <div class="flex justify-center gap-4">
+            <button id="restartYes" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow">
+                Send
+            </button>
+
+            <button id="restartNo" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow">
+                Cancel
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="popupIncoming" class="hidden fixed inset-0 bg-black/70 backdrop-blur flex items-center justify-center z-50">
+    <div class="bg-gray-900 text-purple-200 p-6 rounded-xl shadow-xl border border-purple-700 w-96 text-center">
+        <h2 id="incomingTitle" class="text-2xl font-bold mb-2 text-purple-300">Rematch Request</h2>
+        <p id="incomingText" class="mb-6 text-gray-300">Opponent wants to play again.</p>
+
+        <div class="flex justify-center gap-4">
+            <button id="incomingAccept" class="px-5 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded-lg shadow">
+                Accept
+            </button>
+            <button id="incomingDecline" class="px-5 py-2 bg-gray-700 hover:bg-gray-600 text-white rounded-lg shadow">
+                Decline
+            </button>
+        </div>
+    </div>
+</div>
+
+<div id="resultBackdrop" class="result-modal-backdrop">
+    <div id="resultModal" class="result-modal">
+        <div id="resultIcon" class="mb-3"></div>
+        <div id="resultTitle" class="result-title">You Win!</div>
+        <div id="resultText" class="result-sub">Congratulations — you called Bingo.</div>
+
+        <div class="result-actions">
+            <button id="resultPlayAgain" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 rounded-lg text-white">Play Again</button>
+            <button id="resultClose" class="px-4 py-2 bg-gray-700 hover:bg-gray-600 rounded-lg text-white">Close</button>
+        </div>
+    </div>
+</div>
+
+
+
+
+
+<div id="toast" class="toast">
+
+
+
+<script>
+/* ========= BASIC VARIABLES ========= */
+const player = "{{ player|lower }}";
+const playerType = player.includes("1") ? "player1" : "player2";
+const roomCode = "{{ room.code }}";
+
+const table = document.getElementById("bingoTable");
+const canvas = document.getElementById("lineCanvas");
+const ctx = canvas.getContext("2d");
+
+const currentTurnSpan = document.getElementById("currentTurn");
+const turnDiv = document.getElementById("turn");
+
+const waitingDiv = document.getElementById("waiting");
+const gameDiv = document.getElementById("boardWrap");
+
+const timerSpan = document.getElementById("timeLeft");
+const bingoButton = document.getElementById("bingoButton");
+const playAgainButton = document.getElementById("playAgainButton");
+
+const popupRestart = document.getElementById("popupRestart");
+const restartYes = document.getElementById("restartYes");
+const restartNo = document.getElementById("restartNo");
+
+const popupIncoming = document.getElementById("popupIncoming");
+const incomingTitle = document.getElementById("incomingTitle");
+const incomingText = document.getElementById("incomingText");
+const incomingAccept = document.getElementById("incomingAccept");
+const incomingDecline = document.getElementById("incomingDecline");
+
+const toast = document.getElementById("toast");
+
+const resultBackdrop = document.getElementById("resultBackdrop");
+const resultModal = document.getElementById("resultModal");
+const resultTitle = document.getElementById("resultTitle");
+const resultText = document.getElementById("resultText");
+const resultIcon = document.getElementById("resultIcon");
+const resultPlayAgain = document.getElementById("resultPlayAgain");
+const resultClose = document.getElementById("resultClose");
+
+const grid = Array.from(table.rows).map(row => Array.from(row.cells));
+
+/* ========= STATE ========= */
+let gameStarted = false;
+let gameOver = false;
+let timer = 10;
+let timerInterval = null;
+let currentTurn = null;
+
+let playersJoined = 1;
+let rematchRequested = false;
+let waitingForOpponentToAccept = false;
+
+/* ========= AUDIO ========= */
+let audioCtx = null;
+function ensureAudio() {
+    if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') {
+            const resume = () => {
+                audioCtx.resume();
+                window.removeEventListener('click', resume);
+                window.removeEventListener('keydown', resume);
+            };
+            window.addEventListener('click', resume);
+            window.addEventListener('keydown', resume);
+        }
+    }
+}
+
+function playWinSound() {
+    ensureAudio();
+    if (!audioCtx) return;
+
+    const now = audioCtx.currentTime;
+    const master = audioCtx.createGain();
+    master.gain.value = 0.16;
+    master.connect(audioCtx.destination);
+
+    const freqs = [880, 1100, 1320, 1760];
+    freqs.forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sine';
+        o.frequency.setValueAtTime(f, now + i * 0.06);
+        g.gain.setValueAtTime(0, now + i * 0.06);
+        g.gain.linearRampToValueAtTime(1.0, now + i * 0.06 + 0.01);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.6 + 0.06);
+        o.connect(g);
+        g.connect(master);
+        o.start(now + i * 0.06);
+        o.stop(now + i * 0.6 + 0.06);
+    });
+
+    const o2 = audioCtx.createOscillator();
+    const g2 = audioCtx.createGain();
+    o2.type = 'triangle';
+    o2.frequency.setValueAtTime(440, now + 0.04);
+    g2.gain.value = 0;
+    g2.gain.linearRampToValueAtTime(0.9, now + 0.05);
+    g2.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+    o2.connect(g2);
+    g2.connect(master);
+    o2.start(now + 0.04);
+    o2.stop(now + 1.25);
+}
+
+function playLoseSound() {
+    ensureAudio();
+    if (!audioCtx) return;
+
+    const now = audioCtx.currentTime;
+    const master = audioCtx.createGain();
+    master.gain.value = 0.18;
+    master.connect(audioCtx.destination);
+
+    const seq = [520, 460, 390, 330];
+    seq.forEach((f, i) => {
+        const o = audioCtx.createOscillator();
+        const g = audioCtx.createGain();
+        o.type = 'sawtooth';
+        o.frequency.setValueAtTime(f, now + i * 0.18);
+        g.gain.setValueAtTime(0, now + i * 0.18);
+        g.gain.linearRampToValueAtTime(0.8, now + i * 0.18 + 0.02);
+        g.gain.exponentialRampToValueAtTime(0.001, now + i * 0.18 + 0.6);
+        o.connect(g);
+        g.connect(master);
+        o.start(now + i * 0.18);
+        o.stop(now + i * 0.18 + 0.7);
+    });
+
+    const sub = audioCtx.createOscillator();
+    const subG = audioCtx.createGain();
+    sub.type = 'sine';
+    sub.frequency.setValueAtTime(110, now + 0.05);
+    subG.gain.setValueAtTime(0.12, now + 0.05);
+    subG.gain.exponentialRampToValueAtTime(0.001, now + 1.2);
+    sub.connect(subG);
+    subG.connect(master);
+    sub.start(now + 0.05);
+    sub.stop(now + 1.2);
+}
+
+/* ========= CANVAS SYNC & LINE DRAWING ========= */
+function syncCanvasWithTable() {
+    const rect = table.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    const dpr = window.devicePixelRatio || 1;
+    if (dpr !== 1) {
+        canvas.width = rect.width * dpr;
+        canvas.height = rect.height * dpr;
+        canvas.style.width = rect.width + "px";
+        canvas.style.height = rect.height + "px";
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+}
+
+window.addEventListener("load", syncCanvasWithTable);
+window.addEventListener("resize", () => {
+    syncCanvasWithTable();
+    checkLines();
+});
+
+function getCellCenter(r, c) {
+    const cell = grid[r][c];
+    const rect = cell.getBoundingClientRect();
+    const canvasRect = canvas.getBoundingClientRect();
+    return { x: rect.left - canvasRect.left + rect.width / 2, y: rect.top - canvasRect.top + rect.height / 2 };
+}
+
+function drawLine(type, index) {
+    ctx.strokeStyle = "#c084fc";
+    ctx.lineWidth = 5;
+    ctx.lineCap = "round";
+
+    let start, end;
+    if (type === "row") { start = getCellCenter(index, 0); end = getCellCenter(index, 4); }
+    else if (type === "col") { start = getCellCenter(0, index); end = getCellCenter(4, index); }
+    else if (type === "diag" && index === "main") { start = getCellCenter(0, 0); end = getCellCenter(4, 4); }
+    else { start = getCellCenter(0, 4); end = getCellCenter(4, 0); }
+
+    animateLine(start.x, start.y, end.x, end.y);
+}
+
+function animateLine(x1, y1, x2, y2) {
+    let progress = 0;
+    function draw() {
+        progress += 0.03;
+        if (progress > 1) progress = 1;
+        const cx = x1 + (x2 - x1) * progress;
+        const cy = y1 + (y2 - y1) * progress;
+        ctx.beginPath();
+        ctx.moveTo(x1, y1);
+        ctx.lineTo(cx, cy);
+        ctx.stroke();
+        if (progress < 1) requestAnimationFrame(draw);
+    }
+    draw();
+}
+
+let lastLineCount = 0;
+
+function updateBingoLetters(lineCount) {
+    const letters = ["b", "i", "n", "g", "o"];
+    if (lineCount > lastLineCount) {
+        for (let i = lastLineCount; i < lineCount && i < 5; i++) {
+            const el = document.getElementById(letters[i]);
+            el.classList.add("bingo-active");
+        }
+        lastLineCount = lineCount;
+    }
+    if (lineCount >= 5) bingoButton.classList.remove("hidden");
+}
+
+function checkLines() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    let lineCount = 0;
+
+    for (let r = 0; r < 5; r++) if (grid[r].every(td => td.classList.contains("marked"))) { drawLine('row', r); lineCount++; }
+    for (let c = 0; c < 5; c++) if (grid.every(row => row[c].classList.contains("marked"))) { drawLine('col', c); lineCount++; }
+    if (grid.every((row, i) => row[i].classList.contains("marked"))) { drawLine('diag', 'main'); lineCount++; }
+    if (grid.every((row, i) => row[4 - i].classList.contains("marked"))) { drawLine('diag', 'anti'); lineCount++; }
+
+    updateBingoLetters(lineCount);
+    return lineCount;
+}
+
+/* ========= TURN UI ========= */
+function isPlayerTurn() { return currentTurn === playerType; }
+
+function updateTurnHighlight() {
+    if (!currentTurnSpan || !turnDiv) return;
+    currentTurnSpan.textContent = currentTurn === "player1" ? "Player 1" : "Player 2";
+    turnDiv.classList.toggle("text-green-400", isPlayerTurn());
+    turnDiv.classList.toggle("text-gray-400", !isPlayerTurn());
+}
+
+/* ========= TIMER ========= */
+function startTimer() {
+    clearInterval(timerInterval);
+    timer = 10;
+    timerSpan.textContent = timer;
+    timerInterval = setInterval(() => {
+        if (gameOver || !gameStarted) return;
+        timer--;
+        timerSpan.textContent = timer;
+        if (timer <= 0) {
+            clearInterval(timerInterval);
+            if (isPlayerTurn()) autoSelectNumber();
+        }
+    }, 1000);
+}
+
+function resetTimer() { timer = 10; timerSpan.textContent = timer; }
+
+function autoSelectNumber() {
+    const unmarked = [];
+    grid.forEach(row => row.forEach(td => { if (!td.classList.contains("marked")) unmarked.push(parseInt(td.dataset.number)); }));
+    if (!unmarked.length) return;
+    const randomNumber = unmarked[Math.floor(Math.random() * unmarked.length)];
+    socket.send(JSON.stringify({ action: "mark_number", player: playerType, number: randomNumber }));
+}
+
+/* ========= GAME / MARKING ========= */
+function markNumberFromServer(number, playerId) {
+    const td = table.querySelector(`td[data-number='${number}']`);
+    if (!td || td.classList.contains("marked")) return;
+    td.classList.add("marked", playerId);
+    checkLines();
+}
+
+function disableBoard(disabled) {
+    gameDiv.classList.toggle('opacity-70', disabled);
+    gameDiv.style.pointerEvents = disabled ? "none" : "";
+}
+
+/* ========= GAME OVER UI ========= */
+function highlightWinner() { grid.forEach(row => row.forEach(td => { if (td.classList.contains("marked")) td.classList.add("winner"); })); }
+
+function showWinUI() {
+    resultTitle.textContent = "You Win!";
+    resultText.textContent = "Amazing — you called Bingo!";
+    resultIcon.innerHTML = `<div class="text-6xl mb-1">🏆</div>`;
+    resultModal.classList.add('winner-glow');
+    resultBackdrop.style.display = "flex";
+    launchConfettiWin();
+    playWinSound();
+    resultPlayAgain.onclick = () => { resultBackdrop.style.display = "none"; playAgainButton.click(); };
+    resultClose.onclick = () => { resultBackdrop.style.display = "none"; };
+}
+
+function showLoseUI() {
+    resultTitle.textContent = "You Lose";
+    resultText.textContent = "Better luck next time.";
+    resultIcon.innerHTML = `<div class="text-6xl mb-1">😢</div>`;
+    gameDiv.classList.add('loser-shake');
+    gameDiv.style.filter = "grayscale(0.45) contrast(0.9)";
+    setTimeout(() => gameDiv.classList.remove('loser-shake'), 900);
+    resultBackdrop.style.display = "flex";
+    resultModal.classList.remove('winner-glow');
+    resultIcon.animate([{ transform: 'translateY(0)' }, { transform: 'translateY(-8px)' }, { transform: 'translateY(0)' }], { duration: 600, iterations: 2 });
+    playLoseSound();
+    resultPlayAgain.onclick = () => { resultBackdrop.style.display = "none"; playAgainButton.click(); };
+    resultClose.onclick = () => { resultBackdrop.style.display = "none"; gameDiv.style.filter = ""; };
+}
+
+/* ========= TOAST ========= */
+function showToast(message, ms = 3000) {
+    toast.textContent = message;
+    toast.style.display = "block";
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => toast.style.display = "none", ms);
+}
+
+/* ========= CONFETTI ========= */
+function launchConfettiWin() {
+    const colors = ['#f472b6', '#a78bfa', '#f59e0b', '#34d399', '#60a5fa', '#fb7185', '#fde68a'];
+    for (let i = 0; i < 100; i++) {
+        const particle = document.createElement("div");
+        particle.className = "confetti";
+        const startX = window.innerWidth * 0.1 + Math.random() * window.innerWidth * 0.8;
+        particle.style.left = `${startX}px`;
+        particle.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+        particle.style.transform = `rotate(${Math.random() * 360}deg)`;
+        particle.style.width = `${6 + Math.random() * 10}px`;
+        particle.style.height = `${8 + Math.random() * 14}px`;
+        particle.style.opacity = (0.85 + Math.random() * 0.15);
+        particle.style.zIndex = 160;
+        document.body.appendChild(particle);
+        const horizontalShift = (Math.random() - 0.5) * 500;
+        const fallDuration = 1800 + Math.random() * 1800;
+        particle.animate([{ transform: `translate(0px, -10px) rotate(${Math.random() * 360}deg)`, opacity: 1 }, { transform: `translate(${horizontalShift}px, ${window.innerHeight + 40}px) rotate(${Math.random() * 1440}deg)`, opacity: 0 }], { duration: fallDuration, easing: "cubic-bezier(0.33, 0.11, 0.55, 1.04)" });
+        setTimeout(() => particle.remove(), fallDuration);
+    }
+}
+
+/* ========= WEBSOCKET ========= */
+const wsScheme = window.location.protocol === "https:" ? "wss" : "ws";
+const socket = new WebSocket(`${wsScheme}://${window.location.host}/ws/bingo/${roomCode}/`);
+
+socket.onopen = function () {
+    socket.send(JSON.stringify({ action: "player_joined", player: playerType }));
+};
+
+socket.onmessage = function (event) {
+    const data = JSON.parse(event.data);
+
+    /* ===== PLAYER COUNT / GAME START ===== */
+    if (data.action === "players_count" || data.type === "players_count") {
+        playersJoined = data.count || playersJoined;
+        if (playersJoined >= 2) {
+            waitingDiv.style.display = "none";
+            gameDiv.style.display = "block";
+            turnDiv.classList.remove("hidden");
+            timerSpan && timerSpan.parentElement && timerSpan.parentElement.classList.remove("hidden");
+            bingoButton.classList.remove("hidden");
+            currentTurn = data.current_turn || currentTurn || "player1";
+            gameStarted = true;
+            updateTurnHighlight();
+            startTimer();
+        } else {
+            waitingDiv.style.display = "block";
+            gameDiv.style.display = "none";
+        }
+    }
+
+    if (data.action === "game_start") {
+        playersJoined = 2;
+        waitingDiv.style.display = "none";
+        turnDiv.classList.remove("hidden");
+        timerSpan && timerSpan.parentElement && timerSpan.parentElement.classList.remove("hidden");
+        bingoButton.classList.remove("hidden");
+        gameDiv.style.display = "block";
+        currentTurn = data.current_turn || "player1";
+        gameStarted = true;
+        updateTurnHighlight();
+        startTimer();
+    }
+
+    /* ===== MARK NUMBER ===== */
+    if (data.action === "mark_number") markNumberFromServer(data.number, data.player);
+
+    /* ===== TURN CHANGE ===== */
+    if (data.action === "turn_change") { currentTurn = data.current_turn; updateTurnHighlight(); startTimer(); }
+
+    /* ===== BINGO CALLED ===== */
+    if (data.action === "bingo_called") handleGameOver(data.message || "Bingo called");
+
+    /* ===== REMATCH ===== */
+    if (data.action === "play_again_request") {
+        if (data.player && data.player !== playerType && !rematchRequested && !waitingForOpponentToAccept) {
+            popupIncoming.classList.remove("hidden");
+            incomingTitle.textContent = "Rematch Request";
+            incomingText.textContent = (data.player === "player1" ? "Player 1" : "Player 2") + " wants a rematch. Accept?";
+        }
+    }
+
+    if (data.action === "reset_game") {
+        rematchRequested = false;
+        waitingForOpponentToAccept = false;
+        restartGameFromServer(data.current_turn || "player1");
+        showToast("Rematch started!");
+    }
+
+    if (data.action === "chat") {
+    const msg = document.createElement("div");
+    msg.classList.add("chat-bubble", data.player === player ? "me" : "them");
+    msg.innerText = (data.emoji ? data.emoji + " " : "") + (data.message || "");
+    chatMessages.appendChild(msg);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+
+    // Show notification if modal is closed and it's from the other player
+    if (chatModal.style.display === "none" && data.player !== player) {
+        showChatNotification("New message!");
+    }
+}
+
+
+
+
+};
+
+/* ===== TABLE CLICK ===== */
+table.addEventListener("click", (e) => {
+    if (!gameStarted || gameOver) return;
+    if (e.target.tagName === "TD" && !e.target.classList.contains("marked") && isPlayerTurn()) {
+        const number = parseInt(e.target.dataset.number);
+        socket.send(JSON.stringify({ action: "mark_number", player: playerType, number }));
+        resetTimer();
+    }
+});
+
+/* ===== BINGO BUTTON ===== */
+bingoButton && bingoButton.addEventListener("click", () => {
+    if (checkLines() >= 5) socket.send(JSON.stringify({ action: "call_bingo", player: playerType }));
+    else showToast("You need at least 5 lines to call Bingo.");
+});
+
+/* ===== PLAY AGAIN FLOW ===== */
+playAgainButton && playAgainButton.addEventListener("click", () => popupRestart.classList.remove("hidden"));
+
+restartYes && restartYes.addEventListener("click", () => {
+    popupRestart.classList.add("hidden");
+    if (rematchRequested) { showToast("Rematch already requested. Waiting..."); return; }
+    rematchRequested = true;
+    waitingForOpponentToAccept = true;
+    restartYes.disabled = true; restartNo.disabled = true;
+    socket.send(JSON.stringify({ action: "play_again", player: playerType }));
+    showToast("Rematch request sent. Waiting for opponent...");
+});
+
+restartNo && restartNo.addEventListener("click", () => popupRestart.classList.add("hidden"));
+
+incomingAccept && incomingAccept.addEventListener("click", () => {
+    incomingAccept.disabled = true; incomingDecline.disabled = true;
+    popupIncoming.classList.add("hidden");
+    rematchRequested = true; waitingForOpponentToAccept = true;
+    socket.send(JSON.stringify({ action: "play_again", player: playerType }));
+    showToast("You accepted rematch. Waiting for opponent...");
+});
+
+incomingDecline && incomingDecline.addEventListener("click", () => {
+    popupIncoming.classList.add("hidden"); showToast("You declined rematch.");
+});
+
+/* ========= GAME OVER / RESTART ========= */
+function handleGameOver(message) {
+    clearInterval(timerInterval);
+    const winner = message && message.split(' ')[0];
+    const amIWinner = winner === playerType;
+
+    gameOver = true;
+    disableBoard(true);
+    playAgainButton.classList.remove("hidden");
+
+    highlightWinner();
+    if (amIWinner) showWinUI(); else showLoseUI();
+    showToast(message, 3500);
+}
+
+function restartGameFromServer(turn) {
+    grid.forEach(row => row.forEach(td => td.classList.remove("marked", "player1", "player2", "winner")));
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    gameStarted = true;
+    gameOver = false;
+    playAgainButton.classList.add("hidden");
+    disableBoard(false);
+    rematchRequested = false;
+    waitingForOpponentToAccept = false;
+    restartYes.disabled = false; restartNo.disabled = false; incomingAccept.disabled = false; incomingDecline.disabled = false;
+    currentTurn = turn;
+    updateTurnHighlight();
+    startTimer();
+    ["b","i","n","g","o"].forEach(id => document.getElementById(id).classList.remove("bingo-active"));
+    lastLineCount = 0;
+}
+
+/* ========= CHAT MODAL ========= */
+const openChatBtn = document.getElementById("openChatBtn");
+const chatModal = document.getElementById("chatModal");
+const closeChatBtn = document.getElementById("closeChatBtn");
+const chatInput = document.getElementById("chatInput");
+const sendChatBtn = document.getElementById("sendChatBtn");
+const chatMessages = document.getElementById("chatMessages");
+const emojiPicker = document.getElementById("emojiPicker");
+
+openChatBtn.addEventListener("click", () => chatModal.style.display = "flex");
+closeChatBtn.addEventListener("click", () => chatModal.style.display = "none");
+chatModal.addEventListener("click", (e) => { if (e.target === chatModal) chatModal.style.display = "none"; });
+
+function sendMessage() {
+    const text = chatInput.value.trim();
+    if (!text) return;
+    socket.send(JSON.stringify({ action: "chat", player: player, message: text }));
+    chatInput.value = "";
+}
+
+sendChatBtn.addEventListener("click", sendMessage);
+chatInput.addEventListener("keydown", (e) => { if (e.key === "Enter") sendMessage(); });
+
+emojiPicker.addEventListener("click", (e) => {
+    if (e.target.tagName === "SPAN") {
+        socket.send(JSON.stringify({ action: "chat", player: player, emoji: e.target.innerText, message: "" }));
+    }
+});
+
+
+    /* ========= CHAT NOTIFICATION ========= */
+function showChatNotification(message) {
+    const notification = document.getElementById("chatNotification");
+    notification.textContent = message;           // Set actual message
+    notification.classList.remove("hidden");      // Show bubble
+    notification.classList.add("scale-x-100");    // Expand from right
+
+    // Collapse after 2 seconds
+    setTimeout(() => {
+        notification.classList.remove("scale-x-100");
+        notification.classList.add("scale-x-0");
+    }, 2000);
+
+    // Hide completely after animation
+    setTimeout(() => {
+        notification.classList.add("hidden");
+    }, 2300);
+}
+
+
+
+function showChatNotification(message) {
+    const notification = document.getElementById("chatNotification");
+    if (!notification) return;
+
+    // Clear any previous timers
+    clearTimeout(notification._hideTimeout);
+
+    // Set message & show
+    notification.textContent = message;
+    notification.classList.remove("hidden");
+    notification.style.opacity = 1;
+    notification.style.transform = "translateY(0)";
+
+    // Hide after 2s
+    notification._hideTimeout = setTimeout(() => {
+        notification.style.opacity = 0;
+        notification.style.transform = "translateY(20px)";
+        setTimeout(() => notification.classList.add("hidden"), 300); // wait for fade-out
+    }, 2000);
+}
+
+
+
+</script>
+
+
+
+
+
+</body>
+</html>
