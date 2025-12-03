@@ -66,59 +66,67 @@
 
 
   <!-- ================= CONTENT ================= -->
-  <div class="min-h-screen flex flex-col items-center justify-center p-6">
+<div class="min-h-screen flex flex-col items-center justify-center px-4 py-8">
 
-    <!-- GLITCH / GAMING TITLE -->
-    <h1 class="text-6xl font-extrabold text-purple-400 mb-2 tracking-wide drop-shadow-xl">
-      Bingo
-    </h1>
-    <p class="text-purple-300 mb-10 text-lg tracking-widest">
-      ENTER THE ROOM
-    </p>
+  <!-- GLITCH / GAMING TITLE -->
+  <h1 class="text-4xl sm:text-5xl md:text-6xl font-extrabold text-purple-400 mb-2 tracking-wide drop-shadow-xl text-center">
+    Bingo
+  </h1>
+  <p class="text-purple-300 mb-8 sm:mb-10 text-sm sm:text-lg tracking-widest text-center">
+    ENTER THE ROOM
+  </p>
 
-    {% if error %}
-      <p class="text-red-400 font-semibold mb-4">{{ error }}</p>
-    {% endif %}
+  {% if error %}
+    <p class="text-red-400 font-semibold mb-4 text-sm sm:text-base text-center">{{ error }}</p>
+  {% endif %}
 
-    <!-- CARD BOX -->
-    <div class="bg-gray-900/40 backdrop-blur-xl p-10 rounded-2xl border border-purple-600 shadow-[0_0_20px_#a855f7] animate-[neonPulse_2s_infinite]">
+  <!-- CARD BOX -->
+  <div
+    class="w-full max-w-sm sm:max-w-md bg-gray-900/40 backdrop-blur-xl p-6 sm:p-10
+           rounded-2xl border border-purple-600 shadow-[0_0_20px_#a855f7]
+           animate-[neonPulse_2s_infinite]">
 
-      <!-- CREATE ROOM -->
-      <form method="POST" class="mb-6 flex flex-col items-center">
-        {% csrf_token %}
-        <button type="submit" name="action" value="create"
-                class="px-16 py-4 bg-purple-600 hover:bg-purple-700 rounded-xl
-                       text-xl font-bold tracking-wide transition shadow-lg
-                       shadow-purple-400/40 hover:shadow-purple-300">
-           Create Room
-        </button>
-      </form>
+    <!-- CREATE ROOM -->
+    <form method="POST" class="mb-6 flex flex-col items-center">
+      {% csrf_token %}
+      <button type="submit" name="action" value="create"
+              class="w-full sm:w-auto px-8 sm:px-16 py-3 sm:py-4
+                     bg-purple-600 hover:bg-purple-700 rounded-xl
+                     text-base sm:text-xl font-bold tracking-wide transition
+                     shadow-lg shadow-purple-400/40 hover:shadow-purple-300">
+        Create Room
+      </button>
+    </form>
 
-      <p class="text-gray-300 mb-6 text-center text-lg">OR JOIN </p>
+    <p class="text-gray-300 mb-6 text-center text-sm sm:text-lg">OR JOIN</p>
 
-      <!-- JOIN ROOM -->
-      <form method="POST" class="flex flex-col items-center space-y-4">
-        {% csrf_token %}
-        <input type="text" name="room_code" maxlength="6" required
-               placeholder="ROOM CODE"
-               class="px-4 py-3 w-64 rounded-lg bg-black border-2 border-purple-600 text-center
-                      focus:ring-2 focus:ring-purple-500 outline-none tracking-wider uppercase text-lg" />
+    <!-- JOIN ROOM -->
+    <form method="POST" class="flex flex-col items-center space-y-4">
+      {% csrf_token %}
+      <input type="text" name="room_code" maxlength="6" required
+             placeholder="ROOM CODE"
+             class="px-4 py-3 w-full sm:w-64 rounded-lg bg-black border-2
+                    border-purple-600 text-center focus:ring-2
+                    focus:ring-purple-500 outline-none tracking-wider
+                    uppercase text-base sm:text-lg" />
 
-        <button type="submit" name="action" value="join"
-                class="px-16 py-4 bg-purple-500 hover:bg-purple-600 rounded-xl
-                       text-xl font-bold tracking-wide transition shadow-lg shadow-purple-400/40">
-           Join Lobby
-        </button>
-      </form>
-
-    </div>
-
-    <!-- GAMING FOOTER -->
-    <p class="text-gray-400 mt-10 tracking-wide">
-      Powered by⚡ Multi-Game Platform
-    </p>
+      <button type="submit" name="action" value="join"
+              class="w-full sm:w-auto px-8 sm:px-16 py-3 sm:py-4
+                     bg-purple-500 hover:bg-purple-600 rounded-xl
+                     text-base sm:text-xl font-bold tracking-wide transition
+                     shadow-lg shadow-purple-400/40">
+        Join Lobby
+      </button>
+    </form>
 
   </div>
+
+  <!-- GAMING FOOTER -->
+  <p class="text-gray-400 mt-8 sm:mt-10 tracking-wide text-xs sm:text-base text-center">
+    Powered by ⚡ Multi-Game Platform
+  </p>
+
+</div>
 
 </body>
 </html>

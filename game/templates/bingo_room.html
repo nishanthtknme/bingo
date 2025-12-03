@@ -59,7 +59,8 @@
         }
 
         .result-modal {
-            width: 420px;
+            width: 95%;
+            max-width: 420px;
             max-width: calc(100% - 40px);
             background: linear-gradient(180deg, rgba(17,24,39,0.95), rgba(10,10,15,0.85));
             color: #f5f3ff;
@@ -108,8 +109,9 @@
 
 /* Modal content */
 .chat-modal-content {
-    width: 400px;
-    height: 500px;
+    width: 95%;
+    max-width: 400px;
+    height: 80vh;
     background: #f0f0f0;
     border-radius: 16px;
     display: flex;
@@ -275,12 +277,13 @@
     </style>
 </head>
 
-<body class="bg-black text-purple-300 font-sans min-h-screen flex flex-col items-center py-10">
+<body class="bg-black text-purple-300 font-sans min-h-screen flex flex-col items-center py-4 overflow-x-hidden">
+
 
 <div class="fixed inset-0 -z-10 bg-gradient-to-b from-black via-[#180028] to-black"></div>
 
-<h1 class="text-4xl font-extrabold text-purple-400 mb-3">Bingo Room: {{ room.code }}</h1>
-<h3 class="text-xl text-gray-300 mb-6">You are: {{ player }}</h3>
+<h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-purple-400 mb-3 text-center">Bingo Room: {{ room.code }}</h1>
+<h3 class="text-sm sm:text-lg md:text-xl text-gray-300 mb-6 text-center">You are: {{ player }}</h3>
 
 <!-- WAITING banner (id = waiting) -->
 <div id="waiting" class="text-blue-400 text-lg mb-4">Waiting for another player to join...</div>
@@ -303,7 +306,11 @@
         <tr>
             {% for num in row %}
             <td data-number="{{ num }}"
-                class="w-16 h-16 border border-purple-700 text-center text-xl font-bold text-purple-200 hover:bg-purple-800">
+                class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16
+       border border-purple-700 text-center
+       text-sm sm:text-lg md:text-xl
+       font-bold text-purple-200 hover:bg-purple-800"
+>
                 {{ num }}
             </td>
             {% endfor %}
@@ -320,7 +327,7 @@
     <span id="g">G</span>
     <span id="o">O</span>
 </div>
-<button id="bingoButton" class="hidden mt-6 px-8 py-3 bg-purple-600 rounded-xl text-white">
+<button id="bingoButton" class="hidden mt-6 w-full sm:w-auto px-6 sm:px-8 py-3 bg-purple-600 rounded-xl text-white text-sm sm:text-base">
     Call Bingo
 </button>
 
@@ -329,7 +336,7 @@
 
 <!-- CHAT OPEN BUTTON -->
 <button id="openChatBtn"
-        class="fixed bottom-4 right-4 bg-purple-400 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-all duration-200 z-50">
+        class="fixed bottom-3 sm:bottom-4 right-3 sm:right-4 bg-purple-400 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-all duration-200 z-50">
     💬
 </button>
 
@@ -368,7 +375,7 @@
 
 
 
-<button id="playAgainButton" class="hidden mt-4 px-6 py-2 bg-purple-500 rounded-lg text-white">
+<button id="playAgainButton" class="hidden mt-4 w-full sm:w-auto px-6 py-2 bg-purple-500 rounded-lg text-white text-sm sm:text-base">
     Play Again
 </button>
 
@@ -1007,4 +1014,7 @@ function showChatNotification(message) {
 
 
 </body>
+
+
+
 </html>

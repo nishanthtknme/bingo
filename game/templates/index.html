@@ -80,8 +80,8 @@
 
 
 <!-- HERO -->
-<!-- HERO SECTION – NEW -->
-<section class="relative w-full h-screen overflow-hidden flex items-center justify-center text-center">
+<!-- HERO SECTION – RESPONSIVE -->
+<section class="relative w-full min-h-screen overflow-hidden flex items-center justify-center text-center px-4">
 
   <!-- Background Animation -->
   <div class="absolute inset-0 bg-gradient-to-br from-purple-900 via-black to-purple-950 animate-pulse blur-xl opacity-80"></div>
@@ -89,110 +89,121 @@
   <!-- Neon Grid Pattern -->
   <div class="absolute inset-0 bg-[url('https://i.imgur.com/vxQ6Qkt.png')] bg-cover opacity-20"></div>
 
-  <!-- Floating Game Cards -->
-  <div class="absolute left-10 top-1/2 -translate-y-1/2 hidden md:block">
+  <!-- Floating Game Cards (Hidden on Mobile) -->
+  <div class="absolute left-6 top-1/2 -translate-y-1/2 hidden lg:block">
     <img src="https://images.unsplash.com/photo-1614680376739-414d95ff43df?auto=format&fit=crop&w=400&q=60"
-      class="w-52 h-32 object-cover rounded-lg border border-purple-600 shadow-lg shadow-purple-700/50 rotate-[-8deg]">
+      class="w-40 xl:w-52 h-24 xl:h-32 object-cover rounded-lg border border-purple-600 shadow-lg shadow-purple-700/50 rotate-[-8deg]">
   </div>
 
-  <div class="absolute right-10 top-1/3 hidden md:block">
+  <div class="absolute right-6 top-1/3 hidden lg:block">
     <img src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=400&q=60"
-      class="w-52 h-32 object-cover rounded-lg border border-purple-600 shadow-lg shadow-purple-700/50 rotate-[7deg]">
+      class="w-40 xl:w-52 h-24 xl:h-32 object-cover rounded-lg border border-purple-600 shadow-lg shadow-purple-700/50 rotate-[7deg]">
   </div>
 
-  <div class="absolute right-16 bottom-1/4 hidden md:block">
+  <div class="absolute right-10 bottom-1/4 hidden lg:block">
     <img src="https://images.unsplash.com/photo-1604644401900-5da14cbbf986?auto=format&fit=crop&w=400&q=60"
-      class="w-52 h-32 object-cover rounded-lg border border-purple-600 shadow-lg shadow-purple-700/50 rotate-[4deg]">
+      class="w-40 xl:w-52 h-24 xl:h-32 object-cover rounded-lg border border-purple-600 shadow-lg shadow-purple-700/50 rotate-[4deg]">
   </div>
 
   <!-- Content -->
-  <div class="relative z-10 max-w-3xl px-6">
+  <div class="relative z-10 max-w-3xl w-full">
 
-    <h1 class="text-7xl font-extrabold text-purple-400 drop-shadow-[0_0_25px_rgba(168,85,247,0.8)] leading-tight">
+    <h1 class="text-4xl sm:text-5xl lg:text-7xl font-extrabold text-purple-400 drop-shadow-[0_0_25px_rgba(168,85,247,0.8)] leading-tight">
       The Ultimate <span class="text-white">Gaming Hub</span>
     </h1>
 
-    <p class="mt-6 text-gray-300 text-xl max-w-xl mx-auto leading-relaxed">
+    <p class="mt-6 text-gray-300 text-base sm:text-lg lg:text-xl max-w-xl mx-auto leading-relaxed">
       Explore 100+ games in one platform — racing, action, multiplayer battles, puzzles, and more.
     </p>
 
-    <button class="mt-10 bg-purple-600 px-12 py-4 text-xl rounded-lg border border-purple-300 neon hover:bg-purple-500 duration-300">
+    <button class="mt-8 sm:mt-10 bg-purple-600 px-8 sm:px-12 py-3 sm:py-4 text-base sm:text-xl rounded-lg border border-purple-300 neon hover:bg-purple-500 duration-300">
       Start Playing
     </button>
 
     <!-- Stats -->
-    <div class="mt-12 flex justify-center space-x-12 text-purple-300 text-lg">
-      <div><span class="text-3xl font-bold text-white">100+</span> Games</div>
-      <div><span class="text-3xl font-bold text-white">50K+</span> Players</div>
-      <div><span class="text-3xl font-bold text-white">24/7</span> Live Events</div>
+    <div class="mt-10 flex flex-wrap justify-center gap-6 sm:gap-12 text-purple-300 text-sm sm:text-lg">
+      <div><span class="text-2xl sm:text-3xl font-bold text-white">100+</span> Games</div>
+      <div><span class="text-2xl sm:text-3xl font-bold text-white">50K+</span> Players</div>
+      <div><span class="text-2xl sm:text-3xl font-bold text-white">24/7</span> Live Events</div>
     </div>
 
   </div>
 </section>
 
-<!-- CATEGORY BAR -->
-<section class="py-12 bg-black text-center border-y border-purple-700/30">
-  <h3 class="text-3xl font-bold mb-10">Popular Categories</h3>
+<!-- CATEGORY BAR – RESPONSIVE -->
+<section class="py-10 bg-black text-center border-y border-purple-700/30 px-4">
+  <h3 class="text-2xl sm:text-3xl font-bold mb-8">Popular Categories</h3>
 
-  <div class="flex overflow-x-auto space-x-6 px-4 justify-center">
-    <span class="px-6 py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Action</span>
-    <span class="px-6 py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Arcade</span>
-    <span class="px-6 py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Racing</span>
-    <span class="px-6 py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Multiplayer</span>
-    <span class="px-6 py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Battle Royale</span>
-    <span class="px-6 py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Puzzle</span>
+  <div class="flex overflow-x-auto space-x-4 sm:space-x-6 justify-start sm:justify-center scrollbar-hide">
+    <span class="whitespace-nowrap px-5 py-2 sm:px-6 sm:py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Action</span>
+    <span class="whitespace-nowrap px-5 py-2 sm:px-6 sm:py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Arcade</span>
+    <span class="whitespace-nowrap px-5 py-2 sm:px-6 sm:py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Racing</span>
+    <span class="whitespace-nowrap px-5 py-2 sm:px-6 sm:py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Multiplayer</span>
+    <span class="whitespace-nowrap px-5 py-2 sm:px-6 sm:py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Battle Royale</span>
+    <span class="whitespace-nowrap px-5 py-2 sm:px-6 sm:py-3 bg-purple-700/30 rounded-full border border-purple-500 hover:bg-purple-600/40 cursor-pointer">Puzzle</span>
   </div>
 </section>
 
-<!-- GAME GRID -->
-<section class="py-20 px-10 bg-gradient-to-b from-purple-950 to-black">
-  <h3 class="text-4xl font-bold text-center mb-16">Featured Games</h3>
+<!-- GAME GRID – RESPONSIVE -->
+<section class="py-16 sm:py-20 px-4 sm:px-10 bg-gradient-to-b from-purple-950 to-black">
+  <h3 class="text-3xl sm:text-4xl font-bold text-center mb-12 sm:mb-16">Featured Games</h3>
 
-  <div class="grid md:grid-cols-3 gap-10 max-w-6xl mx-auto">
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 sm:gap-10 max-w-6xl mx-auto">
 
     <!-- Game Card -->
-    <div class="bg-black/70 rounded-xl border border-purple-700/40 card overflow-hidden duration-300">
+    <div class="bg-black/70 rounded-xl border border-purple-700/40 overflow-hidden duration-300 hover:scale-105">
       <img src="https://images.unsplash.com/photo-1614680376739-414d95ff43df?auto=format&fit=crop&w=1200&q=80"
-           class="w-full h-48 object-cover" />
-      <div class="p-6">
-        <h4 class="text-xl font-bold text-purple-300">Bingo</h4>
-        <p class="text-gray-400 mt-2">Fast-paced futuristic shooter with neon arenas.</p>
-       <a href="{% url 'bingo' %}">  <button class="mt-4 bg-purple-600 px-4 py-2 rounded neon hover:bg-purple-500">Play Now</button></a>
+           class="w-full h-40 sm:h-48 object-cover" />
+      <div class="p-5 sm:p-6">
+        <h4 class="text-lg sm:text-xl font-bold text-purple-300">Bingo</h4>
+        <p class="text-gray-400 mt-2 text-sm sm:text-base">Fast-paced futuristic shooter with neon arenas.</p>
+        <a href="{% url 'bingo' %}">
+          <button class="mt-4 bg-purple-600 px-5 py-2 rounded neon hover:bg-purple-500 text-sm sm:text-base">
+            Play Now
+          </button>
+        </a>
       </div>
     </div>
 
-    <div class="bg-black/70 rounded-xl border border-purple-700/40 card overflow-hidden duration-300">
+    <!-- Card 2 -->
+    <div class="bg-black/70 rounded-xl border border-purple-700/40 overflow-hidden duration-300 hover:scale-105">
       <img src="https://images.unsplash.com/photo-1525201548942-d8732f6617a0?auto=format&fit=crop&w=1200&q=80"
-           class="w-full h-48 object-cover" />
-      <div class="p-6">
-        <h4 class="text-xl font-bold text-purple-300">Speed Rush</h4>
-        <p class="text-gray-400 mt-2">High intensity racing with futuristic tracks.</p>
-        <button class="mt-4 bg-purple-600 px-4 py-2 rounded neon hover:bg-purple-500">Play Now</button>
+           class="w-full h-40 sm:h-48 object-cover" />
+      <div class="p-5 sm:p-6">
+        <h4 class="text-lg sm:text-xl font-bold text-purple-300">Speed Rush</h4>
+        <p class="text-gray-400 mt-2 text-sm sm:text-base">High intensity racing with futuristic tracks.</p>
+        <button class="mt-4 bg-purple-600 px-5 py-2 rounded neon hover:bg-purple-500 text-sm sm:text-base">
+          Play Now
+        </button>
       </div>
     </div>
 
-    <div class="bg-black/70 rounded-xl border border-purple-700/40 card overflow-hidden duration-300">
+    <!-- Card 3 -->
+    <div class="bg-black/70 rounded-xl border border-purple-700/40 overflow-hidden duration-300 hover:scale-105">
       <img src="https://images.unsplash.com/photo-1604644401900-5da14cbbf986?auto=format&fit=crop&w=1200&q=80"
-           class="w-full h-48 object-cover" />
-      <div class="p-6">
-        <h4 class="text-xl font-bold text-purple-300">Galaxy Puzzle</h4>
-        <p class="text-gray-400 mt-2">Solve cosmic puzzles and unlock new planets.</p>
-        <button class="mt-4 bg-purple-600 px-4 py-2 rounded neon hover:bg-purple-500">Play Now</button>
+           class="w-full h-40 sm:h-48 object-cover" />
+      <div class="p-5 sm:p-6">
+        <h4 class="text-lg sm:text-xl font-bold text-purple-300">Galaxy Puzzle</h4>
+        <p class="text-gray-400 mt-2 text-sm sm:text-base">Solve cosmic puzzles and unlock new planets.</p>
+        <button class="mt-4 bg-purple-600 px-5 py-2 rounded neon hover:bg-purple-500 text-sm sm:text-base">
+          Play Now
+        </button>
       </div>
     </div>
 
   </div>
 </section>
 
-<!-- CTA -->
-<section class="py-20 text-center bg-black">
-  <h3 class="text-4xl font-bold">100+ Games. Endless Fun.</h3>
-  <p class="text-gray-400 mt-4">Create your account and unlock all platforms.</p>
+<!-- CTA – RESPONSIVE -->
+<section class="py-16 sm:py-20 text-center bg-black px-4">
+  <h3 class="text-3xl sm:text-4xl font-bold">100+ Games. Endless Fun.</h3>
+  <p class="text-gray-400 mt-4 text-sm sm:text-base">Create your account and unlock all platforms.</p>
 
-  <button class="mt-10 bg-purple-600 px-12 py-4 text-xl rounded neon hover:bg-purple-500 duration-300">
+  <button class="mt-8 sm:mt-10 bg-purple-600 px-8 sm:px-12 py-3 sm:py-4 text-sm sm:text-xl rounded neon hover:bg-purple-500 duration-300">
     Get Started
   </button>
 </section>
+
 
 <!-- FOOTER -->
 <footer class="py-6 text-center bg-black border-t border-purple-700/30 text-gray-500">
