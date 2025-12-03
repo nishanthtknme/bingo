@@ -79,6 +79,9 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'bingo_game.wsgi.application'
+CSRF_TRUSTED_ORIGINS = [
+    "https://*.onrender.com"
+]
 
 
 # Database
