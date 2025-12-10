@@ -272,73 +272,161 @@
     transform: translateX(0);
     opacity: 1;
 }
+ /* ✅ FORCE RESPONSIVE SQUARE CELLS */
+#bingoTable td {
+    width: 20%;
+    aspect-ratio: 1 / 1;
+    font-size: clamp(14px, 4vw, 26px);
+}
+        /* ===== Mobile UI Improvements ===== */
+@media (max-width: 640px) {
+
+    .chat-modal-content {
+        width: 96%;
+        height: 90vh;
+        border-radius: 20px;
+    }
+
+    .chat-modal-header {
+        padding: 16px;
+        font-size: 18px;
+    }
+
+    .close-btn {
+        font-size: 26px;
+    }
+
+    .chat-bubble {
+        font-size: 16px;
+        padding: 12px 16px;
+    }
+
+    .emoji-picker {
+        font-size: 26px;
+        padding: 12px;
+    }
+
+    .chat-input-area {
+        padding: 10px;
+    }
+
+    .chat-input-area input {
+        font-size: 16px;
+        padding: 14px 16px;
+    }
+
+    .send-btn {
+        font-size: 22px;
+        padding: 14px;
+    }
+}
+
 
 
     </style>
+
 </head>
 
-<body class="bg-black text-purple-300 font-sans min-h-screen flex flex-col items-center py-4 overflow-x-hidden">
+<body class="bg-black text-purple-300 font-sans min-h-screen flex items-center justify-center overflow-x-hidden">
 
+  <!-- Background Gradient -->
+  <div class="fixed inset-0 -z-10 bg-gradient-to-b from-black via-[#180028] to-black"></div>
 
-<div class="fixed inset-0 -z-10 bg-gradient-to-b from-black via-[#180028] to-black"></div>
+  <!-- Main Container -->
+  <div class="w-full max-w-xl text-center px-2">
 
-<h1 class="text-2xl sm:text-3xl md:text-4xl font-extrabold text-purple-400 mb-3 text-center">Bingo Room: {{ room.code }}</h1>
-<h3 class="text-sm sm:text-lg md:text-xl text-gray-300 mb-6 text-center">You are: {{ player }}</h3>
+    <!-- Title -->
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-purple-400 mb-3 text-center">
+      Bingo Room: {{ room.code }}
+    </h1>
 
-<!-- WAITING banner (id = waiting) -->
-<div id="waiting" class="text-blue-400 text-lg mb-4">Waiting for another player to join...</div>
+    <!-- Player -->
+    <h3 class="text-lg sm:text-xl md:text-2xl text-gray-300 mb-6 text-center">
+      You are: {{ player }}
+    </h3>
 
-<!-- TURN & TIMER -->
-<div id="turn" class="hidden mb-2 text-lg text-purple-400">
-    Current Turn: <span id="currentTurn" class="font-bold"></span>
-</div>
+    <!-- Waiting Message -->
+    <div id="waiting" class="text-blue-400 mb-6 text-lg sm:text-xl md:text-2xl text-center">
+      Waiting for another player to join...
+    </div>
 
-<div id="timer" class="hidden mb-4 text-red-400 text-lg">
-    Time Left: <span id="timeLeft">10</span>s
-</div>
+    <!-- Turn Info -->
+    <div id="turn" class="hidden text-lg sm:text-xl md:text-2xl text-purple-400">
+      Current Turn: <span id="currentTurn" class="font-bold"></span>
+    </div>
 
+    <!-- Timer -->
+    <div id="timer" class="hidden mb-4 text-red-400 text-lg">
+      Time Left: <span id="timeLeft">10</span>s
+    </div>
 
+    <!-- Board Wrapper -->
+    <div id="boardWrap"
+  class="relative inline-block mt-4
+         shadow-[0_0_20px_#7c3aed]
+         rounded-xl p-2 sm:p-3 md:p-4
+         bg-gray-900/40 backdrop-blur
+         w-full max-w-sm sm:max-w-md md:max-w-lg">
 
-<!-- BOARD WRAPPER: uses id="boardWrap" as the game area -->
-<div id="boardWrap" class="relative inline-block mt-4 shadow-[0_0_20px_#7c3aed] rounded-xl p-4 bg-gray-900/40 backdrop-blur">
-    <table id="bingoTable" class="border-collapse">
+      <table id="bingoTable" class="border-collapse w-full table-fixed">
         {% for row in grid %}
         <tr>
-            {% for num in row %}
-            <td data-number="{{ num }}"
-                class="w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16
-       border border-purple-700 text-center
-       text-sm sm:text-lg md:text-xl
-       font-bold text-purple-200 hover:bg-purple-800"
->
-                {{ num }}
-            </td>
-            {% endfor %}
+          {% for num in row %}
+          <td data-number="{{ num }}"
+            class="border border-purple-700 text-center
+                   font-bold text-purple-200
+                   hover:bg-purple-800 transition
+                   w-[15vw] h-[15vw]
+                   sm:w-16 sm:h-16
+                   md:w-20 md:h-20
+                   lg:w-24 lg:h-24
+                   max-w-[80px] max-h-[80px]
+                   text-sm sm:text-lg md:text-xl lg:text-2xl">
+            {{ num }}
+          </td>
+          {% endfor %}
         </tr>
         {% endfor %}
-    </table>
+      </table>
 
-    <canvas id="lineCanvas"></canvas>
-</div>
-<div id="bingoDisplay" class="flex gap-3 mt-2 text-3xl font-extrabold tracking-widest text-purple-400">
-    <span id="b">B</span>
-    <span id="i">I</span>
-    <span id="n">N</span>
-    <span id="g">G</span>
-    <span id="o">O</span>
-</div>
-<button id="bingoButton" class="hidden mt-6 w-full sm:w-auto px-6 sm:px-8 py-3 bg-purple-600 rounded-xl text-white text-sm sm:text-base">
-    Call Bingo
-</button>
+      <!-- Line Drawing Canvas -->
+      <canvas id="lineCanvas" class="absolute inset-0 pointer-events-none"></canvas>
+    </div>
+
+    <!-- BINGO Letters -->
+    <div id="bingoDisplay" class="flex justify-center gap-3 mt-4 text-3xl font-extrabold tracking-widest text-purple-400">
+      <span id="b">B</span>
+      <span id="i">I</span>
+      <span id="n">N</span>
+      <span id="g">G</span>
+      <span id="o">O</span>
+    </div>
+
+    <!-- Call Bingo Button -->
+    <button id="bingoButton"
+      class="hidden mt-6 w-full sm:w-auto px-6 sm:px-8 py-3 bg-purple-600 rounded-xl text-white text-sm sm:text-base">
+      Call Bingo
+    </button>
+
+
+
 
 
 
 
 <!-- CHAT OPEN BUTTON -->
 <button id="openChatBtn"
-        class="fixed bottom-3 sm:bottom-4 right-3 sm:right-4 bg-purple-400 text-white p-4 rounded-full shadow-lg hover:bg-green-700 transition-all duration-200 z-50">
+        class="fixed bottom-3 sm:bottom-4 right-3 sm:right-4
+               bg-purple-400 text-white
+               p-6 sm:p-4
+               text-2xl sm:text-base
+               rounded-full shadow-lg
+               hover:bg-green-700
+               transition-all duration-200
+               z-50">
     💬
 </button>
+
 
 <div id="chatNotification" class="fixed bottom-4 right-4 bg-purple-500 text-white px-4 py-2 rounded shadow-lg hidden">
 </div>
@@ -1009,9 +1097,7 @@ function showChatNotification(message) {
 
 </script>
 
-
-
-
+</div>
 
 </body>
 
