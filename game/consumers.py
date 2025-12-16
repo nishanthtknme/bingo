@@ -82,6 +82,7 @@ class BingoConsumer(AsyncWebsocketConsumer):
             message = data.get("message")
             emoji = data.get("emoji", None)
 
+            # Broadcast chat to all players (so sender sees it too)
             await self.channel_layer.group_send(
                 self.room_group_name,
                 {
@@ -91,6 +92,12 @@ class BingoConsumer(AsyncWebsocketConsumer):
                     "emoji": emoji,
                 }
             )
+
+            # Send notification only to opponent
+            await self.send_to_opponent(player, {
+                "action": "notification",
+                "message": f"New message from {player}"
+            })
             return
 
         # -----------------------------------------------------
@@ -169,7 +176,7 @@ class BingoConsumer(AsyncWebsocketConsumer):
                 )
 
     # -----------------------------------------------------
-    # DIRECT MESSAGE TO OPPONENT
+    # DIRECT MESSAGE TO OPPONENT ONLY
     # -----------------------------------------------------
     async def send_to_opponent(self, player, message):
         group = self.channel_layer.groups.get(self.room_group_name, [])
@@ -228,9 +235,6 @@ class BingoConsumer(AsyncWebsocketConsumer):
             "current_turn": event["current_turn"]
         }))
 
-    # -----------------------------------------------------
-    # PLAYERS COUNT EVENT
-    # -----------------------------------------------------
     async def players_count_event(self, event):
         await self.send(json.dumps({
             "action": "players_count",
@@ -239,7 +243,7 @@ class BingoConsumer(AsyncWebsocketConsumer):
         }))
 
     # -----------------------------------------------------
-    # DB HELPERS
+    # DATABASE HELPERS
     # -----------------------------------------------------
     @database_sync_to_async
     def get_room(self):
